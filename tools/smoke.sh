@@ -45,6 +45,13 @@ cmp -s "$ws/dist/a file with spaces.txt" "$root/site/dist/a file with spaces.txt
 cmp -s "$ws/dist/报告.txt" "$root/site/dist/报告.txt" || fail "a UTF-8 name broke the upload"
 [ ! -e "$root/site/private/secret.txt" ] || fail "a file outside the pattern must not be sent"
 
+# the runner's scratch, including .secrets.json, must never reach the server
+mkdir -p "$ws/.atoms/run9"
+printf '{"token": "super-secret"}' >"$ws/.atoms/run9/.secrets.json"
+dir=$(run_ftp "$ws" '{"password": "s3cret pw"}' sourceFiles="**/*")
+[ ! -e "$root/site/.atoms/run9/.secrets.json" ] || fail "the runner's secrets were uploaded over FTP"
+[ -f "$root/site/dist/app.jar" ] || fail "a real file was skipped along with the scratch"
+
 # --- the password must not be in the process arguments curl was given
 grep -q -- "--user" "$dir/atom.log" && fail "the command line must not carry --user"
 grep -q "s3cret" "$dir/atom.log" && fail "the password ended up in the log"
