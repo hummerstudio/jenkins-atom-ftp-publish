@@ -1,0 +1,12 @@
+{
+  "name": "Publish over FTP",
+  "summary": "Uploads files to an FTP or FTPS server, keeping their directory structure.",
+  "author": "hummerstudio",
+  "license": "MIT",
+  "tags": [
+    "official-port",
+    "ftp",
+    "deploy"
+  ],
+  "homepage": "https://github.com/hummerstudio/jenkins-atom-ftp-publish"
+}

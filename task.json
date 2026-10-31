@@ -1,0 +1,87 @@
+{
+  "atomCode": "ftp-publish",
+  "name": "Publish over FTP",
+  "version": "1.0.0",
+  "description": "Uploads files to an FTP or FTPS server, keeping their directory structure.",
+  "execution": {
+    "packagePath": "ftp-publish.jar",
+    "language": "java",
+    "target": "$atom_java_path -cp ftp-publish.jar com.jenkinschina.atom.sdk.AtomRunner"
+  },
+  "input": {
+    "host": {
+      "label": "主机",
+      "type": "vuex-input",
+      "default": ""
+    },
+    "port": {
+      "label": "端口",
+      "type": "vuex-input",
+      "default": "21"
+    },
+    "username": {
+      "label": "用户名",
+      "type": "vuex-input",
+      "default": ""
+    },
+    "password": {
+      "label": "密码",
+      "type": "password",
+      "default": ""
+    },
+    "remoteDir": {
+      "label": "远端目录",
+      "type": "vuex-input",
+      "default": ""
+    },
+    "sourceFiles": {
+      "label": "要传的文件（逗号分隔的 glob）",
+      "type": "vuex-input",
+      "default": "**/*"
+    },
+    "exclude": {
+      "label": "排除（逗号分隔的 glob）",
+      "type": "vuex-input",
+      "default": ""
+    },
+    "baseDir": {
+      "label": "相对目录（默认 workspace）",
+      "type": "vuex-input",
+      "default": ""
+    },
+    "secure": {
+      "label": "用 FTPS（TLS）",
+      "type": "checkbox",
+      "default": "false"
+    },
+    "timeoutSeconds": {
+      "label": "超时（秒）",
+      "type": "vuex-input",
+      "default": "120"
+    }
+  },
+  "output": {
+    "filesUploaded": {
+      "type": "string",
+      "description": "传输的文件数"
+    },
+    "bytes": {
+      "type": "string",
+      "description": "传输的字节数"
+    },
+    "remoteDir": {
+      "type": "string",
+      "description": "远端目录"
+    },
+    "host": {
+      "type": "string",
+      "description": "主机"
+    }
+  },
+  "x-jenkins": {
+    "protocol": "jenkins-1",
+    "requires": {
+      "runner": ">=0.4.0"
+    }
+  }
+}
