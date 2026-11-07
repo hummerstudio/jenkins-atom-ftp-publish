@@ -7,9 +7,11 @@ import com.jenkinschina.atom.sdk.ErrorType;
 import com.jenkinschina.atom.sdk.Glob;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -70,19 +72,13 @@ public class FtpPublishAtom implements AtomTask {
 
         Path netrc = null;
         try {
-            netrc = Files.createTempFile("atom-ftp-", ".netrc");
+            netrc = createOwnerOnlyTempFile("atom-ftp-", ".netrc");
             // curl reads the password from here, so it never shows up in ps or in the build log
             String machine = host.replace("'", "");
             Files.writeString(netrc,
                     "machine " + netrcToken(machine) + "\nlogin " + netrcToken(username)
                             + "\npassword " + netrcToken(password) + "\n",
                     StandardCharsets.UTF_8);
-            try {
-                Files.setPosixFilePermissions(netrc,
-                        Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
-            } catch (UnsupportedOperationException ignored) {
-                // a filesystem without POSIX modes: nothing better is available
-            }
 
             String scheme = secure ? "ftps" : "ftp";
             String target = scheme + "://" + host + ":" + port + "/" + encodePath(trimSlashes(remoteDir)) + "/";
@@ -142,6 +138,18 @@ public class FtpPublishAtom implements AtomTask {
      * netrc splits on whitespace, so a password with a space would be cut in half and the login would fail with a
      * 530 that says nothing about the real cause. Quoted tokens fix that; newlines cannot be expressed at all.
      */
+    /**
+     * The netrc file holds a password: it is 0600 from the instant it exists instead of being tightened afterwards.
+     * A filesystem without POSIX modes has no group/world bit to lose, so the attribute is left off there.
+     */
+    private static Path createOwnerOnlyTempFile(String prefix, String suffix) throws IOException {
+        if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+            return Files.createTempFile(prefix, suffix,
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
+        }
+        return Files.createTempFile(prefix, suffix, new FileAttribute<?>[0]);
+    }
+
     static String netrcToken(String value) {
         String cleaned = value.replace("\r", "").replace("\n", "");
         if (cleaned.isEmpty()) {
