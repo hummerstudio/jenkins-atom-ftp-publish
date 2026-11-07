@@ -11,7 +11,7 @@ publish-over-ftp 与 ftppublisher 都在 Java 里自己实现 FTP 客户端；�
 - 530/550/登录失败归 `USER`，其余归 `ENVIRONMENT`
 
 ```bash
-./build.sh && ./tools/smoke.sh
+mvn verify
 ```
 
-smoke 会在 `127.0.0.1:<port>` 起一个**真的 FTP 协议服务**（PASV/STOR/SIZE），传完回磁盘逐字节对账。
+`mvn verify` 打包 jar，再用 failsafe 在 `127.0.0.1:<port>` 起一个**真的 FTP 协议服务**（`tools/fake_ftp.py`，PASV/STOR/SIZE），传完回磁盘逐字节对账。
