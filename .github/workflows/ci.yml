@@ -37,4 +37,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ftp-publish-atom
-          path: atom/dist/ftp-publish/
+          path: atom/target/dist/ftp-publish/
